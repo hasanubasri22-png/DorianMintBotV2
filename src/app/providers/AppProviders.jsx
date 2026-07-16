@@ -1,21 +1,21 @@
-import { BrowserRouter } from "react-router-dom";
+import React from 'react';
+import { WalletProvider } from './WalletContext';
+import { BlockchainProvider } from './BlockchainContext';
+import { TransactionProvider } from './TransactionContext';
+import { ActivityLogProvider } from './ActivityLogContext';
 
-import { WalletProvider } from "@/context/WalletContext";
+export const AppProviders = ({ children }) => {
+  return (
+    <ActivityLogProvider>
+      <TransactionProvider>
+        <BlockchainProvider>
+          <WalletProvider>
+            {children}
+          </WalletProvider>
+        </BlockchainProvider>
+      </TransactionProvider>
+    </ActivityLogProvider>
+  );
+};
 
-export default function AppProviders({ children }) {
-
-    return (
-
-        <BrowserRouter>
-
-            <WalletProvider>
-
-                {children}
-
-            </WalletProvider>
-
-        </BrowserRouter>
-
-    );
-
-}
+export default AppProviders;

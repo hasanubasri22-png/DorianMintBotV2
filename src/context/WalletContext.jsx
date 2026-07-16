@@ -1,94 +1,99 @@
-import {
-    createContext,
-    useContext,
-    useEffect,
-    useMemo,
-    useReducer,
-} from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
-import walletReducer, {
-    initialWalletState,
-} from "@/reducers/walletReducer";
+const WalletContext = createContext();
 
-import { createWalletService } from "@/services/wallet";
+export const WalletProvider = ({ children }) => {
+  const [wallets, setWallets] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [mnemonicPassword, setMnemonicPassword] = useState(null);
 
-const WalletContext = createContext(null);
-
-export function WalletProvider({ children }) {
-
-    const [state, dispatch] = useReducer(
-        walletReducer,
-        initialWalletState
-    );
-
-    const walletService = useMemo(
-        () => createWalletService(dispatch),
-        [dispatch]
-    );
-
-    useEffect(() => {
-
-        walletService.loadSession()
-            .then(wallets => {
-
-                if (wallets.length) {
-
-                    walletService.importWallets(wallets);
-
-                }
-
-            });
-
-    }, []);
-
-    useEffect(() => {
-
-        walletService.saveSession(
-            state.wallets
-        );
-
-    }, [state.wallets]);
-
-    const value = useMemo(() => ({
-
-        wallets: state.wallets,
-
-        ...walletService
-
-    }), [
-
-        state.wallets,
-
-        walletService
-
-    ]);
-
-    return (
-
-        <WalletContext.Provider value={value}>
-
-            {children}
-
-        </WalletContext.Provider>
-
-    );
-
-}
-
-export function useWalletContext() {
-
-    const context = useContext(WalletContext);
-
-    if (!context) {
-
-        throw new Error(
-            "useWalletContext harus digunakan di dalam WalletProvider."
-        );
-
+  const loadWallets = useCallback(async () => {
+    try {
+      setLoading(true);
+      const result = await window.walletAPI.getAll();
+      setWallets(result);
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+      console.error('Failed to load wallets:', err);
+    } finally {
+      setLoading(false);
     }
+  }, []);
 
-    return context;
+  const generateWallet = useCallback(async (index) => {
+    try {
+      setLoading(true);
+      const result = await window.walletAPI.generateWallet(index);
+      await loadWallets();
+      return result;
+    } catch (err) {
+      setError(err.message);
+      console.error('Failed to generate wallet:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [loadWallets]);
 
-}
+  const updateWalletLabel = useCallback(async (address, label) => {
+    try {
+      setLoading(true);
+      await window.walletAPI.updateLabel(address, label);
+      await loadWallets();
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+      console.error('Failed to update wallet label:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [loadWallets]);
 
-export default WalletContext;
+  const deleteWallet = useCallback(async (address) => {
+    try {
+      setLoading(true);
+      await window.walletAPI.delete(address);
+      await loadWallets();
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+      console.error('Failed to delete wallet:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [loadWallets]);
+
+  useEffect(() => {
+    loadWallets();
+  }, [loadWallets]);
+
+  return (
+    <WalletContext.Provider
+      value={{
+        wallets,
+        loading,
+        error,
+        mnemonicPassword,
+        setMnemonicPassword,
+        loadWallets,
+        generateWallet,
+        updateWalletLabel,
+        deleteWallet
+      }}
+    >
+      {children}
+    </WalletContext.Provider>
+  );
+};
+
+export const useWalletContext = () => {
+  const context = useContext(WalletContext);
+  if (!context) {
+    throw new Error('useWalletContext must be used within WalletProvider');
+  }
+  return context;
+};
