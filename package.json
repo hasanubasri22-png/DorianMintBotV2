@@ -1,56 +1,55 @@
 {
   "name": "dorianmintbotv2",
   "private": true,
-  "version": "0.1.0",
-  "description": "Dorian Mint Bot V2",
+  "version": "1.0.0",
+  "description": "Dorian Mint Bot V2 - HD Wallet Manager & Batch Transaction Tool",
   "main": "electron/main.js",
   "type": "module",
 
   "scripts": {
     "dev": "vite",
-
     "electron": "electron electron/main.js",
-
     "electron:dev": "concurrently -k \"vite --strictPort\" \"wait-on http://127.0.0.1:5173 && electron electron/main.js\"",
-
     "build": "vite build",
-
     "electron:build": "vite build && electron-builder",
-
     "preview": "vite preview",
-
-    "lint": "eslint ."
+    "lint": "eslint . --fix",
+    "lint:check": "eslint ."
   },
 
   "build": {
     "appId": "com.dorian.mintbot",
     "productName": "Dorian Mint Bot V2",
-
     "directories": {
       "output": "release"
     },
-
     "files": [
       "dist/**/*",
       "electron/**/*",
       "package.json"
     ],
-
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "certificateFile": null
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
     }
   },
 
   "dependencies": {
+    "better-sqlite3": "^11.5.0",
     "chart.js": "^4.5.1",
-    "electron-store": "^11.0.2",
+    "crypto-js": "^4.2.1",
     "ethers": "^6.17.0",
     "lucide-react": "^1.24.0",
     "react": "^19.2.7",
     "react-chartjs-2": "^5.3.1",
     "react-dom": "^19.2.7",
     "react-router-dom": "^7.18.1",
-    "sqlite3": "^6.0.1"
+    "bip39": "^4.0.1",
+    "hdkey": "^2.2.0"
   },
 
   "devDependencies": {
