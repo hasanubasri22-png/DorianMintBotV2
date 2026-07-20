@@ -1,9 +1,9 @@
 import { BrowserWindow, ipcMain } from 'electron';
-import WalletService from './services/WalletService.js';
-import BlockchainService from './services/BlockchainService.js';
-import TransactionService from './services/TransactionService.js';
-import SettingsService from './services/SettingsService.js';
-import ActivityLogService from './services/ActivityLogService.js';
+import WalletService from '../services/WalletService.js';
+import BlockchainService from '../services/BlockchainService.js';
+import TransactionService from '../services/TransactionService.js';
+import SettingsService from '../services/SettingsService.js';
+import ActivityLogService from '../services/ActivityLogService.js';
 
 class IPCManager {
   constructor() {
