@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import * as ethers from 'ethers';
 import { randomBytes } from 'node:crypto';
 import WalletRepository from '../database/WalletRepository.js';
 import MnemonicRepository from '../database/MnemonicRepository.js';
@@ -8,6 +8,10 @@ import ActivityLogService from './ActivityLogService.js';
 class WalletService {
   generateMnemonic() {
     try {
+      console.log('[WalletService.generateMnemonic] ethers object:', typeof ethers);
+      console.log('[WalletService.generateMnemonic] ethers.Mnemonic:', typeof ethers.Mnemonic);
+      console.log('[WalletService.generateMnemonic] available methods:', Object.keys(ethers.Mnemonic || {}));
+      
       // Use ethers v6 correct API to generate a mnemonic phrase
       const mnemonic = ethers.Mnemonic.createRandom();
       ActivityLogService.log('wallet', 'Generated new mnemonic', null, 'success');
