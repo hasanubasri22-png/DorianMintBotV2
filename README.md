@@ -1,16 +1,101 @@
-# React + Vite
+# Dorian Mint Bot V2
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+HD Wallet Manager & Batch Transaction Tool - Production-Ready Electron + React Application
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **HD Wallet Management**
+  - Generate wallets from BIP39 mnemonic
+  - Import/export encrypted mnemonics
+  - Support for up to 1000 managed wallets
+  - AES-256 encryption for private keys
+  - Display address, balance, nonce for each wallet
 
-## React Compiler
+- **Batch Transactions**
+  - Queue batch ETH transfers
+  - Multi-RPC support
+  - Transaction queue management
+  - Pause, resume, and cancel functionality
+  - Gas estimation with EIP-1559 support
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Blockchain Integration**
+  - Real-time wallet sync
+  - Balance and nonce tracking
+  - Gas price estimation
+  - Multiple RPC endpoint support
 
-## Expanding the ESLint configuration
+- **Activity Logging**
+  - Comprehensive transaction logging
+  - Filter by type and status
+  - Real-time updates
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Architecture
+
+```
+src/
+├── components/        # React UI components
+├── context/          # React context providers
+├── constants/        # Application constants
+├── utils/           # Utility functions
+├── App.jsx          # Main application component
+├── main.jsx         # React entry point
+└── index.css        # Tailwind CSS
+
+electron/
+├── database/        # Database layer (BetterSQLite3)
+├── services/        # Business logic services
+├── ipc/            # Electron IPC handlers
+├── main.js         # Electron main process
+└── preload.js      # Electron preload script
+```
+
+## Installation
+
+```bash
+npm install
+```
+
+## Development
+
+```bash
+# Start Vite dev server and Electron together
+npm run electron:dev
+
+# Or separately:
+npm run dev        # Vite dev server
+electron .         # Electron app
+```
+
+## Building
+
+```bash
+npm run electron:build
+```
+
+## Linting
+
+```bash
+npm run lint        # Fix linting issues
+npm run lint:check  # Check for issues
+```
+
+## Tech Stack
+
+- **Frontend**: React 19, Tailwind CSS, Lucide Icons
+- **Desktop**: Electron 43
+- **Backend**: Node.js with native modules
+- **Database**: BetterSQLite3
+- **Crypto**: ethers.js v6, crypto-js, bip39
+- **Build**: Vite, Electron Builder
+
+## Security
+
+- Context isolation enabled
+- Sandbox disabled (required for native modules)
+- AES-256 encryption for sensitive data
+- IPC-based database access
+- Private keys never exposed to renderer process
+
+## License
+
+MIT
