@@ -19,8 +19,17 @@ class WalletService {
 
   importMnemonic(mnemonic, password) {
     try {
+      if (!mnemonic || !password) {
+        throw new Error('Mnemonic and password are required');
+      }
       const hashedPassword = CryptoService.hashPassword(password);
       const encryptedMnemonic = CryptoService.encryptAES256(mnemonic, password);
+      
+      console.log('Importing mnemonic with:', { 
+        encryptedMnemonicLength: encryptedMnemonic?.length,
+        hashedPasswordLength: hashedPassword?.length 
+      });
+      
       MnemonicRepository.create({
         encryptedMnemonic,
         hashedPassword

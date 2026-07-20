@@ -2,6 +2,9 @@ import db from './Database.js';
 
 class MnemonicRepository {
   create(data) {
+    if (!data || !data.encryptedMnemonic || !data.hashedPassword) {
+      throw new Error('Invalid mnemonic data: encryptedMnemonic and hashedPassword are required');
+    }
     const sql = `
       INSERT INTO mnemonics (encryptedMnemonic, hashedPassword)
       VALUES (?, ?)
@@ -20,6 +23,9 @@ class MnemonicRepository {
   }
 
   update(id, data) {
+    if (!data || !data.encryptedMnemonic || !data.hashedPassword) {
+      throw new Error('Invalid mnemonic data: encryptedMnemonic and hashedPassword are required');
+    }
     const sql = `
       UPDATE mnemonics 
       SET encryptedMnemonic = ?, hashedPassword = ?
