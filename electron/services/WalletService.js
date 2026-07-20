@@ -60,7 +60,9 @@ class WalletService {
         throw new Error('No mnemonic found');
       }
       
-      const mnemonic = ethers.Mnemonic.fromPhrase(mnemonicRecord.encryptedMnemonic);
+      // Decrypt the mnemonic first
+      const decryptedMnemonic = CryptoService.decryptAES256(mnemonicRecord.encryptedMnemonic, 'default');
+      const mnemonic = ethers.Mnemonic.fromPhrase(decryptedMnemonic);
       const hdNode = ethers.HDNodeWallet.fromMnemonic(mnemonic, `m/44'/60'/0'/0/${index}`);
       const wallet = new ethers.Wallet(hdNode.privateKey);
 
