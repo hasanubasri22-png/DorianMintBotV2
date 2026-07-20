@@ -1,4 +1,4 @@
-import Database from 'better-sqlite3';
+import initSqlJs from 'sql.js';
 import path from 'node:path';
 import { app } from 'electron';
 import fs from 'node:fs';
@@ -6,11 +6,15 @@ import fs from 'node:fs';
 class DatabaseService {
   constructor() {
     this.db = null;
+    this.SQL = null;
     this.dbPath = null;
   }
 
-  initialize() {
+  async initialize() {
     try {
+      // Initialize sql.js
+      this.SQL = await initSqlJs();
+      
       const userData = app.getPath('userData');
       this.dbPath = path.join(userData, 'dorian-mint-bot.db');
 
@@ -19,9 +23,16 @@ class DatabaseService {
         fs.mkdirSync(userData, { recursive: true });
       }
 
-      this.db = new Database(this.dbPath);
-      this.db.pragma('journal_mode = WAL');
+      // Load existing database or create new one
+      if (fs.existsSync(this.dbPath)) {
+        const filebuffer = fs.readFileSync(this.dbPath);
+        this.db = new this.SQL.Database(filebuffer);
+      } else {
+        this.db = new this.SQL.Database();
+      }
+
       this.createTables();
+      this.save();
       console.log('Database initialized successfully');
     } catch (error) {
       console.error('Database initialization failed:', error);
@@ -31,7 +42,7 @@ class DatabaseService {
 
   createTables() {
     // Wallets table
-    this.db.exec(`
+    this.db.run(`
       CREATE TABLE IF NOT EXISTS wallets (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         address TEXT UNIQUE NOT NULL,
@@ -48,7 +59,7 @@ class DatabaseService {
     `);
 
     // Mnemonic table
-    this.db.exec(`
+    this.db.run(`
       CREATE TABLE IF NOT EXISTS mnemonics (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         encryptedMnemonic TEXT NOT NULL,
@@ -58,7 +69,7 @@ class DatabaseService {
     `);
 
     // RPC Endpoints table
-    this.db.exec(`
+    this.db.run(`
       CREATE TABLE IF NOT EXISTS rpc_endpoints (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         chainId INTEGER NOT NULL,
@@ -71,7 +82,7 @@ class DatabaseService {
     `);
 
     // Transactions table
-    this.db.exec(`
+    this.db.run(`
       CREATE TABLE IF NOT EXISTS transactions (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         transactionHash TEXT UNIQUE,
@@ -90,7 +101,7 @@ class DatabaseService {
     `);
 
     // Activity Log table
-    this.db.exec(`
+    this.db.run(`
       CREATE TABLE IF NOT EXISTS activity_logs (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         type TEXT NOT NULL,
@@ -102,7 +113,7 @@ class DatabaseService {
     `);
 
     // Settings table
-    this.db.exec(`
+    this.db.run(`
       CREATE TABLE IF NOT EXISTS settings (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         key TEXT UNIQUE NOT NULL,
@@ -114,8 +125,9 @@ class DatabaseService {
 
   run(sql, params = []) {
     try {
-      const stmt = this.db.prepare(sql);
-      return stmt.run(...params);
+      this.db.run(sql, params);
+      this.save();
+      return { changes: this.db.getRowsModified() };
     } catch (error) {
       console.error('Database run error:', error);
       throw error;
@@ -125,7 +137,14 @@ class DatabaseService {
   get(sql, params = []) {
     try {
       const stmt = this.db.prepare(sql);
-      return stmt.get(...params);
+      stmt.bind(params);
+      if (stmt.step()) {
+        const row = stmt.getAsObject();
+        stmt.free();
+        return row;
+      }
+      stmt.free();
+      return undefined;
     } catch (error) {
       console.error('Database get error:', error);
       throw error;
@@ -135,16 +154,33 @@ class DatabaseService {
   all(sql, params = []) {
     try {
       const stmt = this.db.prepare(sql);
-      return stmt.all(...params);
+      stmt.bind(params);
+      const result = [];
+      while (stmt.step()) {
+        result.push(stmt.getAsObject());
+      }
+      stmt.free();
+      return result;
     } catch (error) {
       console.error('Database all error:', error);
       throw error;
     }
   }
 
+  save() {
+    try {
+      const data = this.db.export();
+      const buffer = Buffer.from(data);
+      fs.writeFileSync(this.dbPath, buffer);
+    } catch (error) {
+      console.error('Error saving database:', error);
+    }
+  }
+
   close() {
     try {
       if (this.db) {
+        this.save();
         this.db.close();
         console.log('Database closed');
       }
