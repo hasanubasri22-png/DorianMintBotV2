@@ -8,8 +8,8 @@ import ActivityLogService from './ActivityLogService.js';
 class WalletService {
   generateMnemonic() {
     try {
-      // Use ethers to generate a mnemonic phrase
-      const mnemonic = ethers.Mnemonic.generate('english');
+      // Use ethers v6 correct API to generate a mnemonic phrase
+      const mnemonic = ethers.Mnemonic.createRandom();
       ActivityLogService.log('wallet', 'Generated new mnemonic', null, 'success');
       return { mnemonic: mnemonic.phrase, success: true };
     } catch (error) {
