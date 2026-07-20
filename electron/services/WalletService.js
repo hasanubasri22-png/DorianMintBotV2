@@ -1,4 +1,5 @@
 import { ethers } from 'ethers';
+import { randomBytes } from 'node:crypto';
 import WalletRepository from '../database/WalletRepository.js';
 import MnemonicRepository from '../database/MnemonicRepository.js';
 import CryptoService from './CryptoService.js';
@@ -7,7 +8,9 @@ import ActivityLogService from './ActivityLogService.js';
 class WalletService {
   generateMnemonic() {
     try {
-      const mnemonic = ethers.Mnemonic.entropyToMnemonic(ethers.getRandomValues(new Uint8Array(16)));
+      // Use Node.js crypto instead of ethers.getRandomValues for Electron main process
+      const randomBytes16 = randomBytes(16);
+      const mnemonic = ethers.Mnemonic.entropyToMnemonic(randomBytes16);
       ActivityLogService.log('wallet', 'Generated new mnemonic', null, 'success');
       return { mnemonic, success: true };
     } catch (error) {
@@ -22,8 +25,13 @@ class WalletService {
       if (!mnemonic || !password) {
         throw new Error('Mnemonic and password are required');
       }
+      console.log('[WalletService.importMnemonic] Starting import with mnemonic length:', mnemonic.length);
+      
       const hashedPassword = CryptoService.hashPassword(password);
+      console.log('[WalletService.importMnemonic] hashedPassword result:', hashedPassword ? `[string] length=${hashedPassword.length}` : 'UNDEFINED');
+      
       const encryptedMnemonic = CryptoService.encryptAES256(mnemonic, password);
+      console.log('[WalletService.importMnemonic] encryptedMnemonic result:', encryptedMnemonic ? `[string] length=${encryptedMnemonic.length}` : 'UNDEFINED');
       
       console.log('Importing mnemonic with:', { 
         encryptedMnemonicLength: encryptedMnemonic?.length,
@@ -62,15 +70,19 @@ class WalletService {
     }
   }
 
-  generateWallet(index) {
+  generateWallet(index, password) {
     try {
+      if (!password) {
+        throw new Error('Password is required to decrypt mnemonic');
+      }
+      
       const mnemonicRecord = MnemonicRepository.get();
       if (!mnemonicRecord) {
         throw new Error('No mnemonic found');
       }
       
-      // Decrypt the mnemonic first
-      const decryptedMnemonic = CryptoService.decryptAES256(mnemonicRecord.encryptedMnemonic, 'default');
+      // Decrypt the mnemonic with provided password
+      const decryptedMnemonic = CryptoService.decryptAES256(mnemonicRecord.encryptedMnemonic, password);
       const mnemonic = ethers.Mnemonic.fromPhrase(decryptedMnemonic);
       const hdNode = ethers.HDNodeWallet.fromMnemonic(mnemonic, `m/44'/60'/0'/0/${index}`);
       const wallet = new ethers.Wallet(hdNode.privateKey);
@@ -78,7 +90,7 @@ class WalletService {
       WalletRepository.create({
         address: wallet.address,
         publicKey: wallet.publicKey,
-        encryptedPrivateKey: CryptoService.encryptAES256(wallet.privateKey, 'default'),
+        encryptedPrivateKey: CryptoService.encryptAES256(wallet.privateKey, password),
         label: `Wallet ${index}`,
         derivationPath: `m/44'/60'/0'/0/${index}`,
         index: index,
