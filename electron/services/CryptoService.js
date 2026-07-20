@@ -4,10 +4,17 @@ import { randomBytes } from 'node:crypto';
 class CryptoService {
   static encryptAES256(plaintext, password) {
     try {
+      console.log('CryptoService.encryptAES256() called with:', { 
+        plaintext: plaintext ? `[${typeof plaintext}] length=${plaintext.length}` : 'UNDEFINED',
+        password: password ? `[${typeof password}] length=${password.length}` : 'UNDEFINED'
+      });
+      
       if (!plaintext || !password) {
         throw new Error('Plaintext and password are required for encryption');
       }
       const encrypted = CryptoJS.AES.encrypt(plaintext, password).toString();
+      console.log('CryptoService.encryptAES256() result:', encrypted ? `[string] length=${encrypted.length}` : 'EMPTY');
+      
       if (!encrypted) {
         throw new Error('Encryption returned empty result');
       }
@@ -37,10 +44,14 @@ class CryptoService {
 
   static hashPassword(password) {
     try {
+      console.log('CryptoService.hashPassword() called with:', password ? `[${typeof password}] length=${password.length}` : 'UNDEFINED');
+      
       if (!password) {
         throw new Error('Password is required for hashing');
       }
       const hashed = CryptoJS.SHA256(password).toString();
+      console.log('CryptoService.hashPassword() result:', hashed ? `[string] length=${hashed.length}` : 'EMPTY');
+      
       if (!hashed) {
         throw new Error('Hashing returned empty result');
       }
