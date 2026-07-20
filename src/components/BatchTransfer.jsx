@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useTransactionContext } from '@/context/TransactionContext';
+import { useTransaction } from '../app/providers/TransactionContext';
 import { Pause, Play, Trash2, RefreshCw } from 'lucide-react';
 
 const BatchTransfer = () => {
@@ -14,7 +14,7 @@ const BatchTransfer = () => {
     pauseQueue,
     resumeQueue,
     cancelQueue
-  } = useTransactionContext();
+  } = useTransaction();
 
   const [fromAddress, setFromAddress] = useState('');
   const [recipients, setRecipients] = useState('');
