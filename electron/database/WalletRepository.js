@@ -3,7 +3,7 @@ import db from './Database.js';
 class WalletRepository {
   create(wallet) {
     const sql = `
-      INSERT INTO wallets (address, publicKey, encryptedPrivateKey, label, derivationPath, \`index\`, balance, nonce)
+      INSERT INTO wallets (address, publicKey, encryptedPrivateKey, label, derivationPath, index_num, balance, nonce)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
     return db.run(sql, [
@@ -24,7 +24,7 @@ class WalletRepository {
   }
 
   getAll() {
-    const sql = 'SELECT * FROM wallets ORDER BY \`index\` ASC';
+    const sql = 'SELECT * FROM wallets ORDER BY index_num ASC';
     return db.all(sql);
   }
 
@@ -36,7 +36,7 @@ class WalletRepository {
   update(id, wallet) {
     const sql = `
       UPDATE wallets 
-      SET address = ?, publicKey = ?, encryptedPrivateKey = ?, label = ?, derivationPath = ?, \`index\` = ?, balance = ?, nonce = ?, updatedAt = CURRENT_TIMESTAMP
+      SET address = ?, publicKey = ?, encryptedPrivateKey = ?, label = ?, derivationPath = ?, index_num = ?, balance = ?, nonce = ?, updatedAt = CURRENT_TIMESTAMP
       WHERE id = ?
     `;
     return db.run(sql, [
