@@ -113,7 +113,12 @@ class DatabaseService {
 
   run(sql, params = []) {
     try {
-      this.db.run(sql, params);
+      const stmt = this.db.prepare(sql);
+      if (params && params.length > 0) {
+        stmt.bind(params);
+      }
+      stmt.step();
+      stmt.free();
       this.save();
       return { changes: this.db.getRowsModified() };
     } catch (error) {
@@ -125,7 +130,9 @@ class DatabaseService {
   get(sql, params = []) {
     try {
       const stmt = this.db.prepare(sql);
-      stmt.bind(params);
+      if (params && params.length > 0) {
+        stmt.bind(params);
+      }
       if (stmt.step()) {
         const row = stmt.getAsObject();
         stmt.free();
@@ -142,7 +149,9 @@ class DatabaseService {
   all(sql, params = []) {
     try {
       const stmt = this.db.prepare(sql);
-      stmt.bind(params);
+      if (params && params.length > 0) {
+        stmt.bind(params);
+      }
       const result = [];
       while (stmt.step()) {
         result.push(stmt.getAsObject());
