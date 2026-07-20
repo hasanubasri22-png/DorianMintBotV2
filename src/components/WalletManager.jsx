@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { useWalletContext } from '@/context/WalletContext';
+import { useWallet } from '../app/providers/WalletContext';
 import { Copy, Trash2, Edit2, Plus } from 'lucide-react';
 
 const WalletManager = () => {
-  const { wallets, loading, generateWallet, updateWalletLabel, deleteWallet } = useWalletContext();
+  const { wallets, loading, generateWallet, updateLabel, deleteWallet } = useWallet();
   const [editingAddress, setEditingAddress] = useState(null);
   const [editLabel, setEditLabel] = useState('');
   const [newIndex, setNewIndex] = useState(wallets.length);
@@ -19,7 +19,7 @@ const WalletManager = () => {
 
   const handleUpdateLabel = async (address) => {
     try {
-      await updateWalletLabel(address, editLabel);
+      await updateLabel(address, editLabel);
       setEditingAddress(null);
       setEditLabel('');
     } catch (error) {
