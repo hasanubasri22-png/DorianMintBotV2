@@ -42,85 +42,73 @@ class DatabaseService {
 
   createTables() {
     // Wallets table
-    this.db.run(`
-      CREATE TABLE IF NOT EXISTS wallets (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        address TEXT UNIQUE NOT NULL,
-        publicKey TEXT,
-        encryptedPrivateKey TEXT NOT NULL,
-        label TEXT,
-        derivationPath TEXT,
-        index INTEGER,
-        balance TEXT DEFAULT '0',
-        nonce INTEGER DEFAULT 0,
-        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
+    this.db.run(`CREATE TABLE IF NOT EXISTS wallets (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      address TEXT UNIQUE NOT NULL,
+      publicKey TEXT,
+      encryptedPrivateKey TEXT NOT NULL,
+      label TEXT,
+      derivationPath TEXT,
+      index_num INTEGER,
+      balance TEXT DEFAULT '0',
+      nonce INTEGER DEFAULT 0,
+      createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
 
     // Mnemonic table
-    this.db.run(`
-      CREATE TABLE IF NOT EXISTS mnemonics (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        encryptedMnemonic TEXT NOT NULL,
-        hashedPassword TEXT NOT NULL,
-        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
+    this.db.run(`CREATE TABLE IF NOT EXISTS mnemonics (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      encryptedMnemonic TEXT NOT NULL,
+      hashedPassword TEXT NOT NULL,
+      createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
 
     // RPC Endpoints table
-    this.db.run(`
-      CREATE TABLE IF NOT EXISTS rpc_endpoints (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        chainId INTEGER NOT NULL,
-        name TEXT NOT NULL,
-        url TEXT UNIQUE NOT NULL,
-        isActive INTEGER DEFAULT 1,
-        priority INTEGER DEFAULT 0,
-        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
+    this.db.run(`CREATE TABLE IF NOT EXISTS rpc_endpoints (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      chainId INTEGER NOT NULL,
+      name TEXT NOT NULL,
+      url TEXT UNIQUE NOT NULL,
+      isActive INTEGER DEFAULT 1,
+      priority INTEGER DEFAULT 0,
+      createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
 
     // Transactions table
-    this.db.run(`
-      CREATE TABLE IF NOT EXISTS transactions (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        transactionHash TEXT UNIQUE,
-        fromAddress TEXT NOT NULL,
-        toAddress TEXT NOT NULL,
-        value TEXT NOT NULL,
-        gasPrice TEXT,
-        gasLimit TEXT,
-        nonce INTEGER,
-        status TEXT DEFAULT 'pending',
-        chainId INTEGER,
-        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-        sentAt DATETIME,
-        confirmedAt DATETIME
-      )
-    `);
+    this.db.run(`CREATE TABLE IF NOT EXISTS transactions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      transactionHash TEXT UNIQUE,
+      fromAddress TEXT NOT NULL,
+      toAddress TEXT NOT NULL,
+      value TEXT NOT NULL,
+      gasPrice TEXT,
+      gasLimit TEXT,
+      nonce INTEGER,
+      status TEXT DEFAULT 'pending',
+      chainId INTEGER,
+      createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+      sentAt DATETIME,
+      confirmedAt DATETIME
+    )`);
 
     // Activity Log table
-    this.db.run(`
-      CREATE TABLE IF NOT EXISTS activity_logs (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        type TEXT NOT NULL,
-        action TEXT NOT NULL,
-        details TEXT,
-        status TEXT DEFAULT 'info',
-        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
+    this.db.run(`CREATE TABLE IF NOT EXISTS activity_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      type TEXT NOT NULL,
+      action TEXT NOT NULL,
+      details TEXT,
+      status TEXT DEFAULT 'info',
+      createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
 
     // Settings table
-    this.db.run(`
-      CREATE TABLE IF NOT EXISTS settings (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        key TEXT UNIQUE NOT NULL,
-        value TEXT NOT NULL,
-        updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
+    this.db.run(`CREATE TABLE IF NOT EXISTS settings (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      key TEXT UNIQUE NOT NULL,
+      value TEXT NOT NULL,
+      updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
   }
 
   run(sql, params = []) {
