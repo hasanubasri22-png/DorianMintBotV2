@@ -7,9 +7,9 @@ class ActivityLogRepository {
       VALUES (?, ?, ?, ?)
     `;
     return db.run(sql, [
-      log.type,
-      log.action,
-      log.details || null,
+      log.type || '',
+      log.action || '',
+      log.details ? String(log.details) : '',
       log.status || 'info'
     ]);
   }

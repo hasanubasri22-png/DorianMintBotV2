@@ -7,14 +7,14 @@ class WalletRepository {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
     return db.run(sql, [
-      wallet.address,
-      wallet.publicKey,
-      wallet.encryptedPrivateKey,
-      wallet.label || null,
-      wallet.derivationPath,
-      wallet.index,
-      wallet.balance || '0',
-      wallet.nonce || 0
+      wallet.address || '',
+      wallet.publicKey || '',
+      wallet.encryptedPrivateKey || '',
+      wallet.label ? String(wallet.label) : '',
+      wallet.derivationPath ? String(wallet.derivationPath) : '',
+      wallet.index !== undefined ? wallet.index : 0,
+      wallet.balance ? String(wallet.balance) : '0',
+      wallet.nonce !== undefined ? wallet.nonce : 0
     ]);
   }
 
@@ -40,14 +40,14 @@ class WalletRepository {
       WHERE id = ?
     `;
     return db.run(sql, [
-      wallet.address,
-      wallet.publicKey,
-      wallet.encryptedPrivateKey,
-      wallet.label,
-      wallet.derivationPath,
-      wallet.index,
-      wallet.balance,
-      wallet.nonce,
+      wallet.address || '',
+      wallet.publicKey || '',
+      wallet.encryptedPrivateKey || '',
+      wallet.label ? String(wallet.label) : '',
+      wallet.derivationPath ? String(wallet.derivationPath) : '',
+      wallet.index !== undefined ? wallet.index : 0,
+      wallet.balance ? String(wallet.balance) : '0',
+      wallet.nonce !== undefined ? wallet.nonce : 0,
       id
     ]);
   }
@@ -59,12 +59,12 @@ class WalletRepository {
 
   updateBalance(address, balance) {
     const sql = 'UPDATE wallets SET balance = ?, updatedAt = CURRENT_TIMESTAMP WHERE address = ?';
-    return db.run(sql, [balance, address]);
+    return db.run(sql, [balance ? String(balance) : '0', address]);
   }
 
   updateNonce(address, nonce) {
     const sql = 'UPDATE wallets SET nonce = ?, updatedAt = CURRENT_TIMESTAMP WHERE address = ?';
-    return db.run(sql, [nonce, address]);
+    return db.run(sql, [nonce !== undefined ? nonce : 0, address]);
   }
 
   getCount() {
