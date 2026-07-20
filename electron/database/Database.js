@@ -113,9 +113,15 @@ class DatabaseService {
 
   run(sql, params = []) {
     try {
+      console.log('Database.run() called with:', { sql: sql.substring(0, 50), params: params.map(p => typeof p + ':' + (p ? p.toString().substring(0, 20) : 'NULL')) });
+      
+      // Filter out undefined values
+      const filteredParams = params.map(p => p === undefined ? null : p);
+      
       const stmt = this.db.prepare(sql);
-      if (params && params.length > 0) {
-        stmt.bind(params);
+      if (filteredParams && filteredParams.length > 0) {
+        console.log('Binding params:', filteredParams.map((p, i) => `[${i}]: ${typeof p} = ${p ? p.toString().substring(0, 20) : 'NULL'}`));
+        stmt.bind(filteredParams);
       }
       stmt.step();
       stmt.free();
@@ -123,15 +129,19 @@ class DatabaseService {
       return { changes: this.db.getRowsModified() };
     } catch (error) {
       console.error('Database run error:', error);
+      console.error('SQL:', sql);
+      console.error('Params:', params);
       throw error;
     }
   }
 
   get(sql, params = []) {
     try {
+      const filteredParams = params.map(p => p === undefined ? null : p);
+      
       const stmt = this.db.prepare(sql);
-      if (params && params.length > 0) {
-        stmt.bind(params);
+      if (filteredParams && filteredParams.length > 0) {
+        stmt.bind(filteredParams);
       }
       if (stmt.step()) {
         const row = stmt.getAsObject();
@@ -142,15 +152,19 @@ class DatabaseService {
       return undefined;
     } catch (error) {
       console.error('Database get error:', error);
+      console.error('SQL:', sql);
+      console.error('Params:', params);
       throw error;
     }
   }
 
   all(sql, params = []) {
     try {
+      const filteredParams = params.map(p => p === undefined ? null : p);
+      
       const stmt = this.db.prepare(sql);
-      if (params && params.length > 0) {
-        stmt.bind(params);
+      if (filteredParams && filteredParams.length > 0) {
+        stmt.bind(filteredParams);
       }
       const result = [];
       while (stmt.step()) {
@@ -160,6 +174,8 @@ class DatabaseService {
       return result;
     } catch (error) {
       console.error('Database all error:', error);
+      console.error('SQL:', sql);
+      console.error('Params:', params);
       throw error;
     }
   }
