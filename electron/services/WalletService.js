@@ -8,11 +8,10 @@ import ActivityLogService from './ActivityLogService.js';
 class WalletService {
   generateMnemonic() {
     try {
-      // Use Node.js crypto instead of ethers.getRandomValues for Electron main process
-      const randomBytes16 = randomBytes(16);
-      const mnemonic = ethers.Mnemonic.entropyToMnemonic(randomBytes16);
+      // Use ethers to generate a mnemonic phrase
+      const mnemonic = ethers.Mnemonic.generate('english');
       ActivityLogService.log('wallet', 'Generated new mnemonic', null, 'success');
-      return { mnemonic, success: true };
+      return { mnemonic: mnemonic.phrase, success: true };
     } catch (error) {
       console.error('Generate mnemonic error:', error);
       ActivityLogService.log('wallet', 'Failed to generate mnemonic', error.message, 'error');
@@ -22,10 +21,12 @@ class WalletService {
 
   importMnemonic(mnemonic, password) {
     try {
+      console.log('[WalletService.importMnemonic] START - mnemonic length:', mnemonic?.length);
+      
       if (!mnemonic || !password) {
         throw new Error('Mnemonic and password are required');
       }
-      console.log('[WalletService.importMnemonic] Starting import with mnemonic length:', mnemonic.length);
+      console.log('[WalletService.importMnemonic] Inputs validated');
       
       const hashedPassword = CryptoService.hashPassword(password);
       console.log('[WalletService.importMnemonic] hashedPassword result:', hashedPassword ? `[string] length=${hashedPassword.length}` : 'UNDEFINED');
@@ -33,15 +34,17 @@ class WalletService {
       const encryptedMnemonic = CryptoService.encryptAES256(mnemonic, password);
       console.log('[WalletService.importMnemonic] encryptedMnemonic result:', encryptedMnemonic ? `[string] length=${encryptedMnemonic.length}` : 'UNDEFINED');
       
-      console.log('Importing mnemonic with:', { 
+      console.log('[WalletService.importMnemonic] About to create repository entry with:', { 
         encryptedMnemonicLength: encryptedMnemonic?.length,
         hashedPasswordLength: hashedPassword?.length 
       });
       
-      MnemonicRepository.create({
+      const result = MnemonicRepository.create({
         encryptedMnemonic,
         hashedPassword
       });
+      console.log('[WalletService.importMnemonic] Repository create result:', result);
+      
       ActivityLogService.log('wallet', 'Imported mnemonic', null, 'success');
       return { success: true };
     } catch (error) {
