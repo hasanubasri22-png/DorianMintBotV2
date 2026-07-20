@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useBlockchainContext } from '@/context/BlockchainContext';
+import { useBlockchain } from '../app/providers/BlockchainContext';
 import { Plus, Trash2, Edit2 } from 'lucide-react';
 
 const RPCManager = () => {
-  const { rpcEndpoints, loading, loadRpcEndpoints } = useBlockchainContext();
+  const { rpcEndpoints, loading, loadRpcEndpoints } = useBlockchain();
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
   const [chainId, setChainId] = useState(1);
