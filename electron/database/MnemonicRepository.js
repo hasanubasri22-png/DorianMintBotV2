@@ -1,9 +1,12 @@
 import db from './Database.js';
 
 class MnemonicRepository {
-  create(encryptedMnemonic, hashedPassword) {
-    const sql = 'INSERT INTO mnemonics (encryptedMnemonic, hashedPassword) VALUES (?, ?)';
-    return db.run(sql, [encryptedMnemonic, hashedPassword]);
+  create(data) {
+    const sql = `
+      INSERT INTO mnemonics (encryptedMnemonic, hashedPassword)
+      VALUES (?, ?)
+    `;
+    return db.run(sql, [data.encryptedMnemonic, data.hashedPassword]);
   }
 
   get() {
@@ -11,14 +14,18 @@ class MnemonicRepository {
     return db.get(sql);
   }
 
-  exists() {
-    const sql = 'SELECT COUNT(*) as count FROM mnemonics';
-    return db.get(sql).count > 0;
+  delete(id) {
+    const sql = 'DELETE FROM mnemonics WHERE id = ?';
+    return db.run(sql, [id]);
   }
 
-  delete() {
-    const sql = 'DELETE FROM mnemonics';
-    return db.run(sql);
+  update(id, data) {
+    const sql = `
+      UPDATE mnemonics 
+      SET encryptedMnemonic = ?, hashedPassword = ?
+      WHERE id = ?
+    `;
+    return db.run(sql, [data.encryptedMnemonic, data.hashedPassword, id]);
   }
 }
 

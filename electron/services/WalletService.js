@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 import WalletRepository from '../database/WalletRepository.js';
+import MnemonicRepository from '../database/MnemonicRepository.js';
 import CryptoService from './CryptoService.js';
 import ActivityLogService from './ActivityLogService.js';
 
@@ -20,8 +21,7 @@ class WalletService {
     try {
       const hashedPassword = CryptoService.hashPassword(password);
       const encryptedMnemonic = CryptoService.encryptAES256(mnemonic, password);
-      WalletRepository.create({
-        address: 'mnemonic',
+      MnemonicRepository.create({
         encryptedMnemonic,
         hashedPassword
       });
@@ -36,7 +36,7 @@ class WalletService {
 
   exportMnemonic(password) {
     try {
-      const mnemonicRecord = WalletRepository.get('SELECT * FROM mnemonics LIMIT 1');
+      const mnemonicRecord = MnemonicRepository.get();
       if (!mnemonicRecord) {
         throw new Error('No mnemonic found');
       }
@@ -55,7 +55,7 @@ class WalletService {
 
   generateWallet(index) {
     try {
-      const mnemonicRecord = WalletRepository.get('SELECT * FROM mnemonics LIMIT 1');
+      const mnemonicRecord = MnemonicRepository.get();
       if (!mnemonicRecord) {
         throw new Error('No mnemonic found');
       }
