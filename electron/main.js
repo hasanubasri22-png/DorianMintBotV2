@@ -45,10 +45,10 @@ function createWindow() {
   IPCManager.initialize(win);
 }
 
-app.on('ready', () => {
+app.on('ready', async () => {
   try {
-    // Initialize database
-    DatabaseService.initialize();
+    // Initialize database (now async for sql.js)
+    await DatabaseService.initialize();
     createWindow();
   } catch (error) {
     console.error('Failed to initialize application:', error);
