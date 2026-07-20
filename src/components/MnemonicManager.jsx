@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { useWalletContext } from '@/context/WalletContext';
+import { useWallet } from '../app/providers/WalletContext';
 import { Copy, Eye, EyeOff } from 'lucide-react';
 
 const MnemonicManager = () => {
-  const { mnemonicPassword, setMnemonicPassword } = useWalletContext();
+  const { mnemonicPassword, setMnemonicPassword } = useWallet();
   const [mnemonic, setMnemonic] = useState('');
   const [showMnemonic, setShowMnemonic] = useState(false);
   const [password, setPassword] = useState('');
