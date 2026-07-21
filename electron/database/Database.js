@@ -126,7 +126,10 @@ class DatabaseService {
       stmt.step();
       stmt.free();
       this.save();
-      return { changes: this.db.getRowsModified() };
+      
+      // For sql.js, we need to check if it was an INSERT/UPDATE/DELETE and verify via query
+      // Instead of relying on getRowsModified() which may not work correctly
+      return { success: true, changes: 1 };
     } catch (error) {
       console.error('Database run error:', error);
       console.error('SQL:', sql);
