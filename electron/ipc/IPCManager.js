@@ -49,9 +49,9 @@ class IPCManager {
       }
     });
 
-    ipcMain.handle('wallet:generateWallet', async (event, { index }) => {
+    ipcMain.handle('wallet:generateWallet', async (event, { index, password }) => {
       try {
-        return WalletService.generateWallet(index);
+        return WalletService.generateWallet(index, password);
       } catch (error) {
         console.error('Generate wallet error:', error);
         throw error;
