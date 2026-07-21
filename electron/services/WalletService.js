@@ -8,14 +8,11 @@ import ActivityLogService from './ActivityLogService.js';
 class WalletService {
   generateMnemonic() {
     try {
-      console.log('[WalletService.generateMnemonic] ethers object:', typeof ethers);
-      console.log('[WalletService.generateMnemonic] ethers.Mnemonic:', typeof ethers.Mnemonic);
-      console.log('[WalletService.generateMnemonic] available methods:', Object.keys(ethers.Mnemonic || {}));
-      
-      // Use ethers v6 correct API to generate a mnemonic phrase
-      const mnemonic = ethers.Mnemonic.createRandom();
+      // Use ethers v6 to generate random entropy and convert to mnemonic
+      const entropy = randomBytes(16); // 128 bits for 12-word mnemonic
+      const mnemonic = ethers.Mnemonic.entropyToMnemonic(entropy);
       ActivityLogService.log('wallet', 'Generated new mnemonic', null, 'success');
-      return { mnemonic: mnemonic.phrase, success: true };
+      return { mnemonic, success: true };
     } catch (error) {
       console.error('Generate mnemonic error:', error);
       ActivityLogService.log('wallet', 'Failed to generate mnemonic', error.message, 'error');
